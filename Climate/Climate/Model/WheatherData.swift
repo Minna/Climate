@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct WheatherData  : Decodable{
+struct WheatherData  : Codable{
     let name: String
     let main: Main
     let weather: [Weather]
 }
 
-struct Main : Decodable{
+struct Main : Codable{
     let temp: Double
 }
-struct Weather : Decodable{
+struct Weather : Codable{
     let id: Int
 }

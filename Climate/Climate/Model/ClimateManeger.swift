@@ -9,6 +9,8 @@ import Foundation
 
 struct ClimateManeger {
    let urlString = "https://api.openweathermap.org/data/2.5/weather?appid=b8d6c9ded240f1a1f76e534bba8077fd&units=metric"
+    var delegate : ClimateManegerDelegate?
+    
     func fetchWheather(cityName:String) {
         let url = "\(urlString)&q=\(cityName)"
         print(url)
@@ -25,13 +27,18 @@ struct ClimateManeger {
             let task = session.dataTask(with: url) { (data, response, error) in
                 if error != nil {
                     print(error!)
+                    delegate?.didUpdateWithError(error: error!)
+
                     return
                 }
                 
                 if let safeData = data{
                     
                     
-                    parseJoson(weatherDate: safeData)
+                    if let weathermodel = parseJoson(weatherDate: safeData){
+                        
+                        delegate?.didUpdateWeather(self, weather: weathermodel)
+                    }
                     
                 }
             }
@@ -40,39 +47,34 @@ struct ClimateManeger {
         }
     }
     
-    func parseJoson(weatherDate: Data){
+    func parseJoson(weatherDate: Data) -> WeatherModel?{
         
         let decoder = JSONDecoder()
         do {
           let data =  try   decoder.decode(WheatherData.self, from: weatherDate)
 
             print(data.weather[0].id)
-            getWeatherConditionName(for:data.weather[0].id)
+            let cityName = data.name
+            let temparature = data.main.temp
+            let conditionId = data.weather[0].id
+            
+            let weatherModel = WeatherModel(cityName: cityName, conditionId: conditionId, temperature: temparature)
+            print(weatherModel.conditionName)
+            print(weatherModel.tempString)
+return weatherModel
+            
         } catch {
             print(error)
-        }
-    }
-    func getWeatherConditionName(for id: Int) -> String {
-        
-        switch id {
-        case 200...232:
-                   return "cloud.bolt"
-               case 300...321:
-                   return "cloud.drizzle"
-               case 500...531:
-                   return "cloud.rain"
-               case 600...622:
-                   return "cloud.snow"
-               case 701...781:
-                   return "cloud.fog"
-               case 800:
-                   return "sun.max"
-               case 801...804:
-                   return "cloud.bolt"
-               default:
-                   return "cloud"
-               
+            delegate?.didUpdateWithError(error: error)
 
+            return nil
         }
     }
 }
+
+protocol ClimateManegerDelegate {
+    func didUpdateWeather(_ climateManeger : ClimateManeger, weather: WeatherModel)
+    func didUpdateWithError(error: Error)
+
+}
+
