@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class WheatherViewController: UIViewController {
 
@@ -13,12 +14,19 @@ class WheatherViewController: UIViewController {
     @IBOutlet weak var searchTextField: UITextField!
     @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var conditionImage: UIImageView!
+   
     
     var wheatherManager = ClimateManeger()
+    let locationManager = CoreLocation.CLLocationManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         searchTextField.delegate = self
         wheatherManager.delegate = self
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+
+        locationManager.requestLocation()
 
         // Do any additional setup after loading the view.
     }
@@ -28,7 +36,10 @@ class WheatherViewController: UIViewController {
         searchTextField.endEditing(true)
     }
  
-    
+    @IBAction func locationMangerButtonPressed(_ sender: UIButton) {
+        
+        locationManager.requestLocation()
+    }
    
 
 }
@@ -70,6 +81,7 @@ extension WheatherViewController:  ClimateManegerDelegate{
             self.temperatureLabel.text = weather.tempString
             self.conditionImage.image = UIImage.init(systemName: weather.conditionName)
             self.cityLabel.text = weather.cityName
+            print(weather.cityName)
         }
 
       
@@ -79,6 +91,25 @@ extension WheatherViewController:  ClimateManegerDelegate{
         
     }
    
+}
+
+extension WheatherViewController:  CLLocationManagerDelegate{
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+         
+            if let location = locations.last {
+            print(location)
+                let lat = location.coordinate.latitude
+                let lon = location.coordinate.longitude
+                locationManager.stopUpdatingLocation()
+
+                wheatherManager.fetchWheather(with: lat, and: lon)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print(error)
+    }
 }
 
 

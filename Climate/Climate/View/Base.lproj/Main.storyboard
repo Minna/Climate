@@ -34,6 +34,9 @@
                                                 </constraints>
                                                 <color key="tintColor" name="wheatherColor"/>
                                                 <state key="normal" backgroundImage="location.circle.fill" catalog="system"/>
+                                                <connections>
+                                                    <action selector="locationMangerButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="UzI-N0-wcL"/>
+                                                </connections>
                                             </button>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Search" textAlignment="right" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="3gC-B1-OSV">
                                                 <rect key="frame" x="45" y="0.0" width="190" height="40"/>
